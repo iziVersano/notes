@@ -11,14 +11,14 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
-    "module": "esnext", // Ensure compatible module system
+    "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "baseUrl": ".", // If using path aliases
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"] // If using path aliases
+      "@/*": ["src/*"]
     }
   },
     "include": ["src", "tests", "src/env.d.ts", "src/tests/setupJest.ts"]
