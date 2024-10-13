@@ -1,0 +1,23 @@
+/* src/components/PaginationControls/PaginationControls.css */
+
+/* Flexbox to align the info and controls to the right */
+.pagination-container {
+    display: flex;
+    align-items: center; /* Ensures vertical alignment in the center */
+    vertical-align: middle;
+    justify-content: flex-end; /* Align items to the right */
+    gap: 25px; /* Add a small space between the pagination info and controls */
+  }
+  
+  /* Optional: Ensure pagination items have minimal spacing */
+  .pagination-no-spacing .page-item {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .pagination-no-spacing .page-link {
+    padding: 0.5rem 0.75rem; /* Adjust padding as necessary */
+    margin: 0;
+    border: none;
+  }
+  

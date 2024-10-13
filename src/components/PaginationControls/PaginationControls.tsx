@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pagination } from 'react-bootstrap';
+import './PaginationControls.css'; // Import the CSS file
 
 interface PaginationControlsProps {
   currentPage: number;
@@ -22,23 +23,25 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({
   const endRange = Math.min(currentPage * notesPerPage, totalNotes);
 
   return (
-    <div className="d-flex justify-content-between align-items-center mb-3">
+    <div className="pagination-container mb-3">
       {/* Pagination Info */}
       <div>
-        {startRange}–{endRange} of {totalNotes}
+        {startRange}–{endRange} of {totalNotes} notes {/* Added "notes" */}
       </div>
 
       {/* Pagination Navigation */}
-      <Pagination>
-        <Pagination.Prev
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        />
-        <Pagination.Next
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        />
-      </Pagination>
+      <div className="pagination-no-spacing">
+        <Pagination>
+          <Pagination.Prev
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Next
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          />
+        </Pagination>
+      </div>
     </div>
   );
 };
