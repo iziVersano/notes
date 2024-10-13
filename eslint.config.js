@@ -32,11 +32,11 @@ export default [
 
     // Define the rules
     rules: {
-      'prettier/prettier': 'error', // Integrate Prettier with ESLint
-      'react/react-in-jsx-scope': 'off', // Not needed with React 17+
-      '@typescript-eslint/no-unused-vars': ['error'], // TypeScript rule for unused variables
-      'react/prop-types': 'off', // Disable prop-types since we use TypeScript
-      ...eslintConfigPrettier.rules, // Spread Prettier's rule overrides to disable conflicting rules
+      'prettier/prettier': 'error',
+      'react/react-in-jsx-scope': 'off',
+      '@typescript-eslint/no-unused-vars': ['error'],
+      'react/prop-types': 'off',
+      ...eslintConfigPrettier.rules,
     },
 
     // Plugin-specific settings
