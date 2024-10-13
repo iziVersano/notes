@@ -1,15 +1,19 @@
+// src/setupFetchMock.ts
+
 import fetchMock from 'fetch-mock';
 import API_BASE_URL from './config/apiConfig';
 import { Note } from './features/notes/types';
 import { loadNotes, saveNotes } from './utils/localStorageManager';
+import { v4 as uuidv4 } from 'uuid';
 
-// Initialize notes from localStorage or set default
 let notes: Note[] = loadNotes();
 
-const generateId = (): string => Math.random().toString(36).substr(2, 9);
+const generateId = (): string => uuidv4();
+
+const uuidRegex = '[A-Za-z0-9-]+';
 
 // Mock GET /api/notes
-fetchMock.get(`${API_BASE_URL}/notes`, (url, opts) => {
+fetchMock.get(`${API_BASE_URL}/notes`, () => {
   console.log('Mock API - Fetching notes:', notes);
   return {
     status: 200,
@@ -17,15 +21,17 @@ fetchMock.get(`${API_BASE_URL}/notes`, (url, opts) => {
   };
 });
 
-console.log('Mock API - Fetching notes:', notes);
 // Mock POST /api/notes
 fetchMock.post(`${API_BASE_URL}/notes`, (url, opts) => {
-  const { title, content, shared } = JSON.parse(opts.body as string);
+  const { id, title, content, createdAt, shared } = JSON.parse(
+    opts.body as string
+  );
+
   const newNote: Note = {
-    id: generateId(),
+    id: id || generateId(),
     title,
     content,
-    createdAt: new Date().toISOString(),
+    createdAt: createdAt || new Date().toISOString(),
     shared: shared ?? false,
   };
 
@@ -39,8 +45,8 @@ fetchMock.post(`${API_BASE_URL}/notes`, (url, opts) => {
 });
 
 // Mock PUT /api/notes/:id
-fetchMock.put(new RegExp(`${API_BASE_URL}/notes/\\w+`), (url, opts) => {
-  const match = url.match(new RegExp(`${API_BASE_URL}/notes/(\\w+)`));
+fetchMock.put(new RegExp(`${API_BASE_URL}/notes/${uuidRegex}`), (url, opts) => {
+  const match = url.match(new RegExp(`${API_BASE_URL}/notes/(${uuidRegex})`));
   const id = match ? match[1] : null;
   if (!id) {
     console.log(`Update failed: Invalid URL ${url}`);
@@ -49,6 +55,7 @@ fetchMock.put(new RegExp(`${API_BASE_URL}/notes/\\w+`), (url, opts) => {
       body: { message: 'Invalid note ID' },
     };
   }
+
   const { title, content, shared } = JSON.parse(opts.body as string);
   const noteExists = notes.some((note) => note.id === id);
   if (!noteExists) {
@@ -74,8 +81,8 @@ fetchMock.put(new RegExp(`${API_BASE_URL}/notes/\\w+`), (url, opts) => {
 });
 
 // Mock DELETE /api/notes/:id
-fetchMock.delete(new RegExp(`${API_BASE_URL}/notes/\\w+`), (url) => {
-  const match = url.match(new RegExp(`${API_BASE_URL}/notes/(\\w+)`));
+fetchMock.delete(new RegExp(`${API_BASE_URL}/notes/${uuidRegex}`), (url) => {
+  const match = url.match(new RegExp(`${API_BASE_URL}/notes/(${uuidRegex})`));
   const id = match ? match[1] : null;
   if (!id) {
     console.log(`Delete failed: Invalid URL ${url}`);
@@ -84,6 +91,7 @@ fetchMock.delete(new RegExp(`${API_BASE_URL}/notes/\\w+`), (url) => {
       body: { message: 'Invalid note ID' },
     };
   }
+
   const noteExists = notes.some((note) => note.id === id);
   if (!noteExists) {
     console.log(`Delete failed: Note with ID ${id} not found.`);
@@ -102,64 +110,77 @@ fetchMock.delete(new RegExp(`${API_BASE_URL}/notes/\\w+`), (url) => {
 });
 
 // Mock POST /api/notes/:id/share
-fetchMock.post(new RegExp(`${API_BASE_URL}/notes/\\w+/share`), (url) => {
-  const match = url.match(new RegExp(`${API_BASE_URL}/notes/(\\w+)/share`));
-  const id = match ? match[1] : null;
-  if (!id) {
-    console.log(`Share failed: Invalid URL ${url}`);
-    return {
-      status: 400,
-      body: { message: 'Invalid note ID' },
-    };
-  }
-  const noteExists = notes.some((note) => note.id === id);
-  if (!noteExists) {
-    console.log(`Share failed: Note with ID ${id} not found.`);
-    return {
-      status: 404,
-      body: { message: 'Note not found' },
-    };
-  }
+fetchMock.post(
+  new RegExp(`${API_BASE_URL}/notes/${uuidRegex}/share`),
+  (url) => {
+    const match = url.match(
+      new RegExp(`${API_BASE_URL}/notes/(${uuidRegex})/share`)
+    );
+    const id = match ? match[1] : null;
+    if (!id) {
+      console.log(`Share failed: Invalid URL ${url}`);
+      return {
+        status: 400,
+        body: { message: 'Invalid note ID' },
+      };
+    }
 
-  notes = notes.map((note) =>
-    note.id === id ? { ...note, shared: true } : note
-  );
-  saveNotes(notes);
-  const link = `http://localhost:5173/share/${id}`;
-  console.log(`Shared note with ID ${id}: ${link}`);
-  return {
-    status: 200,
-    body: { link },
-  };
-});
+    const noteExists = notes.some((note) => note.id === id);
+    if (!noteExists) {
+      console.log(`Share failed: Note with ID ${id} not found.`);
+      return {
+        status: 404,
+        body: { message: 'Note not found' },
+      };
+    }
+
+    notes = notes.map((note) =>
+      note.id === id ? { ...note, shared: true } : note
+    );
+    saveNotes(notes);
+    const link = `http://localhost:5173/share/${id}`;
+    console.log(`Shared note with ID ${id}: ${link}`);
+    return {
+      status: 200,
+      body: { link },
+    };
+  }
+);
 
 // Mock GET /api/notes/shared/:id
-fetchMock.get(new RegExp(`${API_BASE_URL}/notes/shared/\\w+`), (url) => {
-  const match = url.match(new RegExp(`${API_BASE_URL}/notes/shared/(\\w+)`));
-  const id = match ? match[1] : null;
-  if (!id) {
-    console.log(`Fetch shared note failed: Invalid URL ${url}`);
-    return {
-      status: 400,
-      body: { message: 'Invalid note ID' },
-    };
-  }
-  const sharedNote = notes.find((note) => note.id === id && note.shared);
-  if (!sharedNote) {
-    console.log(
-      `Fetch shared note failed: Note with ID ${id} not found or not shared.`
+fetchMock.get(
+  new RegExp(`${API_BASE_URL}/notes/shared/${uuidRegex}`),
+  (url) => {
+    const match = url.match(
+      new RegExp(`${API_BASE_URL}/notes/shared/(${uuidRegex})`)
     );
+    const id = match ? match[1] : null;
+    if (!id) {
+      console.log(`Fetch shared note failed: Invalid URL ${url}`);
+      return {
+        status: 400,
+        body: { message: 'Invalid note ID' },
+      };
+    }
+
+    const sharedNote = notes.find((note) => note.id === id && note.shared);
+    if (!sharedNote) {
+      console.log(
+        `Fetch shared note failed: Note with ID ${id} not found or not shared.`
+      );
+      return {
+        status: 404,
+        body: { message: 'Note not found' },
+      };
+    }
+
+    console.log(`Fetched shared note with ID ${id}:`, sharedNote);
     return {
-      status: 404,
-      body: { message: 'Note not found' },
+      status: 200,
+      body: sharedNote,
     };
   }
-  console.log(`Fetched shared note with ID ${id}:`, sharedNote);
-  return {
-    status: 200,
-    body: sharedNote,
-  };
-});
+);
 
 // Prevent actual network requests outside of mocked endpoints
 fetchMock.catch((url) => {

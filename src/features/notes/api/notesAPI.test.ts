@@ -1,5 +1,3 @@
-// src/features/notes/api/notesAPI.test.ts
-
 import {
   fetchNotes,
   createNote,
@@ -8,17 +6,15 @@ import {
   generateShareLink,
   fetchSharedNote,
 } from './notesAPI';
-import { Note } from '../types';
+import { Note as NoteInterface } from '../types';
+import { Note as NoteModel } from '../../../models/Note';
 
-// Mock apiConfig.ts
 jest.mock('../../../config/apiConfig', () => 'http://localhost:5173/api');
 
-// Mock localStorage
 beforeEach(() => {
   localStorage.clear();
 });
 
-// Mock fetch
 beforeEach(() => {
   global.fetch = jest.fn();
 });
@@ -28,9 +24,8 @@ afterEach(() => {
 });
 
 describe('Notes API', () => {
-  // Fetch Notes - Success
   it('fetches notes successfully', async () => {
-    const mockNotes: Note[] = [
+    const mockNotes: NoteInterface[] = [
       {
         id: '1',
         title: 'Test Note',
@@ -50,7 +45,6 @@ describe('Notes API', () => {
     expect(fetch).toHaveBeenCalledWith('http://localhost:5173/api/notes');
   });
 
-  // Fetch Notes - Empty
   it('fetches notes when none are present', async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
@@ -62,20 +56,16 @@ describe('Notes API', () => {
     expect(fetch).toHaveBeenCalledWith('http://localhost:5173/api/notes');
   });
 
-  // Create Note - Success
   it('creates a new note successfully', async () => {
-    const newNoteData = {
-      title: 'New Note',
-      content: 'New Content',
-      shared: false,
-    };
+    const newNote = new NoteModel('New Note', 'New Content');
+    newNote.shared = false;
 
-    const createdNote: Note = {
-      id: '2',
-      title: 'New Note',
-      content: 'New Content',
-      createdAt: '2023-10-10T00:00:00Z',
-      shared: false,
+    const createdNote: NoteInterface = {
+      id: newNote.id,
+      title: newNote.title,
+      content: newNote.content,
+      createdAt: newNote.createdAt,
+      shared: newNote.shared,
     };
 
     (fetch as jest.Mock).mockResolvedValueOnce({
@@ -83,20 +73,19 @@ describe('Notes API', () => {
       json: async () => createdNote,
     });
 
-    const note = await createNote(newNoteData);
+    const note = await createNote(newNote);
     expect(note).toEqual(createdNote);
     expect(fetch).toHaveBeenCalledWith('http://localhost:5173/api/notes', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(newNoteData),
+      body: JSON.stringify(newNote),
     });
   });
 
-  // Edit Note - Success
   it('edits a note successfully', async () => {
-    const initialNote: Note = {
+    const initialNote: NoteInterface = {
       id: '1',
       title: 'Initial Note',
       content: 'Initial Content',
@@ -104,7 +93,7 @@ describe('Notes API', () => {
       shared: false,
     };
 
-    const updatedNote: Note = {
+    const updatedNote: NoteInterface = {
       ...initialNote,
       title: 'Updated Note',
       content: 'Updated Content',
@@ -129,9 +118,8 @@ describe('Notes API', () => {
     );
   });
 
-  // Edit Note - Failure
   it('handles editNote failure when note does not exist', async () => {
-    const nonExistentNote: Note = {
+    const nonExistentNote: NoteInterface = {
       id: '999',
       title: 'Non-existent Note',
       content: 'This note does not exist.',
@@ -158,9 +146,8 @@ describe('Notes API', () => {
     );
   });
 
-  // Delete Note API - Success
   it('deletes a note successfully', async () => {
-    const noteToDelete: Note = {
+    const noteToDelete: NoteInterface = {
       id: '1',
       title: 'Note to Delete',
       content: 'This note will be deleted.',
@@ -181,7 +168,6 @@ describe('Notes API', () => {
     );
   });
 
-  // Delete Note API - Failure
   it('handles deleteNoteAPI failure when note does not exist', async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
@@ -193,9 +179,8 @@ describe('Notes API', () => {
     });
   });
 
-  // Generate Share Link - Success
   it('generates a shareable link successfully', async () => {
-    const note: Note = {
+    const note: NoteInterface = {
       id: '1',
       title: 'Test Note',
       content: 'This is a test note.',
@@ -226,9 +211,8 @@ describe('Notes API', () => {
     );
   });
 
-  // Generate Share Link - Failure
   it('handles generateShareLink failure when note does not exist', async () => {
-    const nonExistentNote: Note = {
+    const nonExistentNote: NoteInterface = {
       id: '999',
       title: 'Non-existent Note',
       content: 'This note does not exist.',
@@ -255,9 +239,8 @@ describe('Notes API', () => {
     );
   });
 
-  // Fetch Shared Note - Success
   it('fetches a shared note successfully', async () => {
-    const sharedNote: Note = {
+    const sharedNote: NoteInterface = {
       id: '3',
       title: 'Shared Note',
       content: 'This is a shared note.',
@@ -277,9 +260,8 @@ describe('Notes API', () => {
     );
   });
 
-  // Fetch Shared Note - Failure (Not Shared)
   it('handles fetchSharedNote failure when note is not shared', async () => {
-    const unsharedNote: Note = {
+    const unsharedNote: NoteInterface = {
       id: '4',
       title: 'Unshared Note',
       content: 'This note is not shared.',
@@ -299,7 +281,6 @@ describe('Notes API', () => {
     );
   });
 
-  // Fetch Shared Note - Failure (Does Not Exist)
   it('handles fetchSharedNote failure when note does not exist', async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,

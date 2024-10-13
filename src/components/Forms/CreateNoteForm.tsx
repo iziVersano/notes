@@ -1,7 +1,10 @@
+// src/components/Forms/CreateNoteForm.tsx
+
 import React, { useCallback, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Button, Form, Alert } from 'react-bootstrap';
 import { useNotes } from '../../hooks/useNotes';
+import { Note } from '../../models/Note';
 
 interface CreateNoteFormInputs {
   title: string;
@@ -26,18 +29,16 @@ const CreateNoteForm: React.FC<CreateNoteFormProps> = ({ onClose }) => {
   const onSubmit: SubmitHandler<CreateNoteFormInputs> = useCallback(
     (data) => {
       setError(null);
-      addNote.mutate(
-        { ...data, shared: true },
-        {
-          onSuccess: () => {
-            reset();
-            onClose();
-          },
-          onError: () => {
-            setError('Failed to create note. Please try again.');
-          },
-        }
-      );
+      const newNote = new Note(data.title, data.content); // Instantiate Note model
+      addNote.mutate(newNote, {
+        onSuccess: () => {
+          reset();
+          onClose();
+        },
+        onError: () => {
+          setError('Failed to create note. Please try again.');
+        },
+      });
     },
     [addNote, reset, onClose]
   );

@@ -27,14 +27,11 @@ export const useNotes = () => {
   });
 
   // Add a new note
-  const addNote = useMutation<Note, Error, Omit<Note, 'id' | 'createdAt'>>(
-    createNote,
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['notes']);
-      },
-    }
-  );
+  const addNote = useMutation<Note, Error, Note>(createNote, {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['notes']);
+    },
+  });
 
   // Update an existing note
   const updateNote = useMutation<Note, Error, Note>(editNote, {

@@ -19,9 +19,7 @@ export const fetchNotes = async (): Promise<Note[]> => {
 };
 
 // Create a new note
-export const createNote = async (
-  note: Omit<Note, 'id' | 'createdAt'>
-): Promise<Note> => {
+export const createNote = async (note: Note): Promise<Note> => {
   try {
     const response = await fetch(`${API_BASE_URL}/notes`, {
       method: 'POST',
@@ -35,7 +33,6 @@ export const createNote = async (
       throw new Error('Failed to create note');
     }
     const data: Note = await response.json();
-    console.log('Fetched notes:', data);
     return data;
   } catch {
     throw new Error('Failed to create note');

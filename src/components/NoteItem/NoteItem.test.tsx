@@ -9,7 +9,7 @@ import { UseMutationResult } from 'react-query';
 // Mock the useNotes hook
 jest.mock('../../hooks/useNotes');
 
-//mock apiConfig.ts
+// Mock apiConfig.ts
 jest.mock('../../config/apiConfig', () => ({
   __esModule: true,
   default: 'http://localhost:5173/api',
@@ -48,7 +48,7 @@ const createMockUseMutation = <
   }) as unknown as UseMutationResult<Data, ErrorType, Variables, Context>;
 
 const sampleNote: Note = {
-  id: '1',
+  id: '1', // Consider using a UUID format, e.g., '123e4567-e89b-12d3-a456-426614174000'
   title: 'Test Note',
   content: 'This is a test note.',
   createdAt: new Date().toISOString(),
@@ -57,17 +57,14 @@ const sampleNote: Note = {
 
 describe('NoteItem Component', () => {
   beforeEach(() => {
+    localStorage.setItem('notes', JSON.stringify([sampleNote]));
+
     mockUseNotes.mockReturnValue({
       notes: [sampleNote],
       isLoading: false,
       isError: false,
       error: null,
-      addNote: createMockUseMutation<
-        Note,
-        Error,
-        Omit<Note, 'id' | 'createdAt'>,
-        unknown
-      >(),
+      addNote: createMockUseMutation<Note, Error, Note, unknown>(),
       removeNote: createMockUseMutation<void, Error, string, unknown>(),
       generateShareLinkMutation: createMockUseMutation<
         { link: string },
@@ -77,6 +74,11 @@ describe('NoteItem Component', () => {
       >(),
       updateNote: createMockUseMutation<Note, Error, Note, unknown>(),
     });
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+    jest.clearAllMocks();
   });
 
   it('renders note details correctly', () => {
