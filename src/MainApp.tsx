@@ -14,24 +14,6 @@ const MainApp: React.FC = () => {
   const handleOpenCreateModal = () => setShowCreateModal(true);
   const handleCloseCreateModal = () => setShowCreateModal(false);
 
-  // Temporary button handler
-  const handleTempCreateNote = () => {
-    const tempNote = {
-      title: 'Temporary Note',
-      content: 'This is a temporary note for testing.',
-      shared: false,
-    };
-
-    addNote.mutate(tempNote, {
-      onSuccess: () => {
-        console.log('Temporary note created successfully.');
-      },
-      onError: (error) => {
-        console.error('Failed to create temporary note:', error);
-      },
-    });
-  };
-
   if (isLoading) {
     return (
       <div className="d-flex justify-content-center mt-5">
@@ -64,14 +46,6 @@ const MainApp: React.FC = () => {
             className="btn-lg rounded-pill"
           >
             Create Note
-          </Button>
-          {/* Temporary Create Note Button */}
-          <Button
-            variant="success"
-            onClick={handleTempCreateNote}
-            className="btn-lg rounded-pill"
-          >
-            Temp Create Note
           </Button>
         </Col>
       </Row>

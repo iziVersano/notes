@@ -1,10 +1,11 @@
 // src/components/Forms/CreateNoteForm.tsx
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Button, Form, Alert } from 'react-bootstrap';
 import { useNotes } from '../../hooks/useNotes';
 import { Note } from '../../models/Note';
+import MarkdownEditor from '../MarkdownEditor/MarkdownEditor';
 
 interface CreateNoteFormInputs {
   title: string;
@@ -20,16 +21,22 @@ const CreateNoteForm: React.FC<CreateNoteFormProps> = ({ onClose }) => {
     register,
     handleSubmit,
     reset,
+    setValue,
+    trigger,
     formState: { errors },
   } = useForm<CreateNoteFormInputs>();
 
   const { addNote } = useNotes();
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    register('content', { required: 'Content is required' });
+  }, [register]);
+
   const onSubmit: SubmitHandler<CreateNoteFormInputs> = useCallback(
     (data) => {
       setError(null);
-      const newNote = new Note(data.title, data.content); // Instantiate Note model
+      const newNote = new Note(data.title, data.content);
       addNote.mutate(newNote, {
         onSuccess: () => {
           reset();
@@ -70,22 +77,12 @@ const CreateNoteForm: React.FC<CreateNoteFormProps> = ({ onClose }) => {
           </Form.Control.Feedback>
         </Form.Group>
 
-        <Form.Group controlId="noteContent" className="mb-3">
-          <Form.Label>Content</Form.Label>
-          <Form.Control
-            as="textarea"
-            aria-required="true"
-            aria-invalid={!!errors.content}
-            rows={3}
-            placeholder="Enter content"
-            {...register('content', { required: 'Content is required' })}
-            isInvalid={!!errors.content}
-            className="rounded"
-          />
-          <Form.Control.Feedback type="invalid">
-            {errors.content?.message}
-          </Form.Control.Feedback>
-        </Form.Group>
+        <MarkdownEditor
+          value=""
+          setValue={setValue}
+          trigger={trigger}
+          error={errors.content?.message}
+        />
       </fieldset>
 
       <div className="d-flex justify-content-end">

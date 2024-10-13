@@ -4,6 +4,7 @@ import { useQuery } from 'react-query';
 import { fetchSharedNote } from '../../features/notes/api/notesAPI';
 import { Spinner, Alert, Card, Container, Button } from 'react-bootstrap';
 import { Note } from '../../features/notes/types';
+import ReactMarkdown from 'react-markdown'; // Import react-markdown to render markdown content
 
 const SharedNoteView: React.FC = () => {
   const { noteId } = useParams<{ noteId: string }>(); // Use 'noteId' as defined in the route
@@ -44,7 +45,7 @@ const SharedNoteView: React.FC = () => {
           <Card>
             <Card.Body>
               <Card.Title>{note.title}</Card.Title>
-              <Card.Text>{note.content}</Card.Text>
+              <ReactMarkdown>{note.content}</ReactMarkdown>
               <Card.Footer>
                 <small className="text-muted">
                   Created At: {new Date(note.createdAt).toLocaleString()}

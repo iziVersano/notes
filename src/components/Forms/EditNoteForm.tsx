@@ -1,7 +1,10 @@
-import React, { useCallback, useState } from 'react';
+// src/components/Forms/EditNoteForm.tsx
+
+import React, { useCallback, useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { Note } from '../../features/notes/types';
 import { Button, Form, Alert } from 'react-bootstrap';
+import MarkdownEditor from '../MarkdownEditor/MarkdownEditor';
 
 interface EditNoteFormProps {
   note: Note;
@@ -22,6 +25,8 @@ const EditNoteForm: React.FC<EditNoteFormProps> = ({
   const {
     register,
     handleSubmit,
+    setValue,
+    trigger,
     formState: { errors },
   } = useForm<EditNoteFormInputs>({
     defaultValues: {
@@ -30,6 +35,10 @@ const EditNoteForm: React.FC<EditNoteFormProps> = ({
     },
   });
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    register('content', { required: 'Content is required' });
+  }, [register]);
 
   const onSubmit: SubmitHandler<EditNoteFormInputs> = useCallback(
     (data) => {
@@ -66,21 +75,12 @@ const EditNoteForm: React.FC<EditNoteFormProps> = ({
           </Form.Control.Feedback>
         </Form.Group>
 
-        <Form.Group controlId="editNoteContent" className="mt-3">
-          <Form.Label>Content</Form.Label>
-          <Form.Control
-            as="textarea"
-            aria-required="true"
-            aria-invalid={!!errors.content}
-            rows={3}
-            placeholder="Enter content"
-            {...register('content', { required: 'Content is required' })}
-            isInvalid={!!errors.content}
-          />
-          <Form.Control.Feedback type="invalid">
-            {errors.content?.message}
-          </Form.Control.Feedback>
-        </Form.Group>
+        <MarkdownEditor
+          value={note.content}
+          setValue={setValue}
+          trigger={trigger}
+          error={errors.content?.message}
+        />
       </fieldset>
 
       <div className="d-flex justify-content-end mt-3">

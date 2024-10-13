@@ -4,6 +4,7 @@ import { Note } from '../../features/notes/types';
 import EditNoteModal from '../Modals/EditNoteModal';
 import DeleteConfirmationModal from '../Modals/DeleteConfirmationModal';
 import { useNotes } from '../../hooks/useNotes';
+import ReactMarkdown from 'react-markdown'; // Import ReactMarkdown to render markdown content
 
 interface NoteItemProps {
   note: Note;
@@ -97,7 +98,9 @@ const NoteItem: React.FC<NoteItemProps> = ({ note }) => {
               </Button>
             </div>
           </Card.Title>
-          <Card.Text>{note.content}</Card.Text>
+          <Card.Text>
+            <ReactMarkdown>{note.content}</ReactMarkdown>
+          </Card.Text>
         </Card.Body>
         <Card.Footer>
           <small className="text-muted">
