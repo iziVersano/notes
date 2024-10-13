@@ -1,5 +1,3 @@
-// src/MainApp.tsx
-
 import React from 'react';
 import { Container, Row, Col, Button, Spinner, Alert } from 'react-bootstrap';
 import SearchBar from './components/Search/SearchBar';
@@ -10,11 +8,29 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/Main.css';
 
 const MainApp: React.FC = () => {
-  const { notes, isLoading, isError, error } = useNotes();
+  const { notes, isLoading, isError, error, addNote } = useNotes();
   const [showCreateModal, setShowCreateModal] = React.useState(false);
 
   const handleOpenCreateModal = () => setShowCreateModal(true);
   const handleCloseCreateModal = () => setShowCreateModal(false);
+
+  // Temporary button handler
+  const handleTempCreateNote = () => {
+    const tempNote = {
+      title: 'Temporary Note',
+      content: 'This is a temporary note for testing.',
+      shared: false,
+    };
+
+    addNote.mutate(tempNote, {
+      onSuccess: () => {
+        console.log('Temporary note created successfully.');
+      },
+      onError: (error) => {
+        console.error('Failed to create temporary note:', error);
+      },
+    });
+  };
 
   if (isLoading) {
     return (
@@ -36,6 +52,8 @@ const MainApp: React.FC = () => {
     );
   }
 
+  console.log('Rendering MainApp...', notes);
+
   return (
     <Container fluid className="p-4">
       <Row className="justify-content-center mb-3">
@@ -46,6 +64,14 @@ const MainApp: React.FC = () => {
             className="btn-lg rounded-pill"
           >
             Create Note
+          </Button>
+          {/* Temporary Create Note Button */}
+          <Button
+            variant="success"
+            onClick={handleTempCreateNote}
+            className="btn-lg rounded-pill"
+          >
+            Temp Create Note
           </Button>
         </Col>
       </Row>
