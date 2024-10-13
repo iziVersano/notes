@@ -1,0 +1,32 @@
+/* src/components/NoteList/NoteList.css */
+
+.note-list-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .pagination-container {
+    position: relative;
+    z-index: 10;
+  }
+  
+  .list-container {
+    height: 400px;
+    overflow-y: scroll;
+  }
+  
+  .note-list {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 400px;
+    margin-bottom: 1rem;
+    padding-right: 0.5rem;
+  }
+  
+  .controls-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+  
