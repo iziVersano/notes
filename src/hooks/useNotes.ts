@@ -21,15 +21,18 @@ export const useNotes = () => {
     isError,
     error,
   } = useQuery<Note[], Error>(['notes'], fetchNotes, {
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    staleTime: 5 * 60 * 1000,
+    cacheTime: 10 * 60 * 1000,
     retry: 1,
   });
 
   // Add a new note
   const addNote = useMutation<Note, Error, Note>(createNote, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(['notes']);
+    onSuccess: (newNote) => {
+      queryClient.setQueryData<Note[]>('notes', (oldNotes = []) => [
+        newNote,
+        ...oldNotes,
+      ]);
     },
   });
 

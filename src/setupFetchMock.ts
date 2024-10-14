@@ -15,9 +15,12 @@ const uuidRegex = '[A-Za-z0-9-]+';
 // Mock GET /api/notes
 fetchMock.get(`${API_BASE_URL}/notes`, () => {
   console.log('Mock API - Fetching notes:', notes);
+  const sortedNotes = [...notes].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
   return {
     status: 200,
-    body: notes,
+    body: sortedNotes,
   };
 });
 
@@ -35,7 +38,7 @@ fetchMock.post(`${API_BASE_URL}/notes`, (url, opts) => {
     shared: shared ?? false,
   };
 
-  notes = [...notes, newNote];
+  notes = [newNote, ...notes];
   saveNotes(notes);
   console.log('Created new note:', newNote);
   return {
